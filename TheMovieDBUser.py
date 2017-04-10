@@ -9,6 +9,10 @@ def exportToJson(data, nameFile):
     fileFilms.write(filmsInJson)
     fileFilms.close()
 
+def stringToUrl(s):
+    "Replace the spaces in a string. The parameters in the TheMovieDB api require this."
+    return s.replace(" ", "%20")
+
 class TheMovieDBException(Exception):
     def __init(self, message):
         super(TheMovieDBException, self).__init__(message)
