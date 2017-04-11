@@ -41,15 +41,18 @@ class TheMovieDBUser():
         data = urllib.urlencode({"value":score})
         return json.loads(url.urlopen("https://api.themoviedb.org/3/movie/" + str(movieId) + "/rating?api_key=" + self.__API_KEY + "&session_id=" + self.__sessionId, data).read())
 
-    def getRatedMovies(self, credits=False):
+
+    def getRatedMoviesPage(self, page=1):
+        return json.loads(url.urlopen("https://api.themoviedb.org/3/account/{account_id}/rated/movies?api_key=" + self.__API_KEY + "&language=en-US&session_id=" + self.__sessionId + "&sort_by=created_at.asc&page=" + str(page)).read()).get("results")
+
+    def getRatedMoviesAllPages(self):
         "Returns a dictionary with all the rated movies by the user in TheMovieDB"
-        films = json.loads(url.urlopen("https://api.themoviedb.org/3/account/{account_id}/rated/movies?api_key=" + self.__API_KEY + "&language=en-US&session_id=" + self.__sessionId + "&sort_by=created_at.asc").read())
-        if credits:
-            for film in films.get("results"):
-                credits = json.loads(url.urlopen("https://api.themoviedb.org/3/movie/" + str(film.get("id")) + "/credits?api_key=" + self.__API_KEY).read())
-                film["cast"] = credits.get("cast")
-                film["crew"] = credits.get("crew")
-        self.ratedMovies = films
+        films = []
+        page1 = json.loads(url.urlopen("https://api.themoviedb.org/3/account/{account_id}/rated/movies?api_key=" + self.__API_KEY + "&language=en-US&session_id=" + self.__sessionId + "&sort_by=created_at.asc").read())
+        films = page1.get("results")
+        for page in range(2,page1.get("total_pages") + 1):
+            films = films + json.loads(url.urlopen("https://api.themoviedb.org/3/account/{account_id}/rated/movies?api_key=" + self.__API_KEY + "&language=en-US&session_id=" + self.__sessionId + "&sort_by=created_at.asc&page=" + str(page)).read()).get("results")
+        self.allRatedMovies = films
         return films
 
     def getMovieCredits(self, movieId):
