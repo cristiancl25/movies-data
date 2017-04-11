@@ -23,6 +23,13 @@ class TheMovieDBUser():
         self.__USER_NAME=user
         self.__PASSWORD=password
         self.__autenticateUser__()
+        self.__allRatedMovies = None
+
+    @property
+    def allRatedMovies(self):
+        if self.__allRatedMovies == None:
+            self.__allRatedMovies = self.getRatedMoviesAllPages()
+        return self.__allRatedMovies
 
     def __autenticateUser__(self):
         "Autenticates the user by username and password in TheMovieDB"
@@ -52,7 +59,6 @@ class TheMovieDBUser():
         films = page1.get("results")
         for page in range(2,page1.get("total_pages") + 1):
             films = films + json.loads(url.urlopen("https://api.themoviedb.org/3/account/{account_id}/rated/movies?api_key=" + self.__API_KEY + "&language=en-US&session_id=" + self.__sessionId + "&sort_by=created_at.asc&page=" + str(page)).read()).get("results")
-        self.allRatedMovies = films
         return films
 
     def getMovieCredits(self, movieId):
